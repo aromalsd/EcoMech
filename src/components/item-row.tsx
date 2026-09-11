@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { decayVerdict, displayState } from "@/lib/scoring";
 import { istClock, relativeTime, rupees } from "@/lib/format";
-import { StateMark, stateColor } from "./state-mark";
+import { StateMark, stateColor, stateWash } from "./state-mark";
 import type { BoardItem, Signal } from "@/lib/types";
 
 interface Props {
@@ -19,6 +19,12 @@ const ACTIONS: ReadonlyArray<{ signal: Signal; label: string }> = [
   { signal: "low", label: "Almost gone" },
   { signal: "sold_out", label: "All gone" },
 ];
+
+const SIGNAL_STATE = {
+  available: "available",
+  low: "low",
+  sold_out: "sold_out",
+} as const;
 
 export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
   const raw = item.state;
@@ -111,20 +117,22 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
         </span>
       </div>
 
-      <div className="mt-[14px] flex border-t-[0.5px] border-(--color-separator)">
-        {ACTIONS.map((action, index) => (
-          <button
-            key={action.signal}
-            type="button"
-            onClick={() => onReport(action.signal)}
-            disabled={pending !== null}
-            className={`h-[46px] flex-1 text-[14px] font-medium text-(--color-ink-2) transition-colors active:bg-black/[0.05] disabled:opacity-40 ${
-              index > 0 ? "border-l-[0.5px] border-(--color-separator)" : ""
-            }`}
-          >
-            {pending === action.signal ? "…" : action.label}
-          </button>
-        ))}
+      <div className="mt-[14px] flex gap-[7px] border-t-[0.5px] border-(--color-separator) px-[14px] py-[13px]">
+        {ACTIONS.map((action) => {
+          const tone = SIGNAL_STATE[action.signal];
+          return (
+            <button
+              key={action.signal}
+              type="button"
+              onClick={() => onReport(action.signal)}
+              disabled={pending !== null}
+              style={{ background: stateWash(tone), color: stateColor(tone) }}
+              className="h-[38px] flex-1 rounded-full text-[13px] font-semibold shadow-[inset_0_0_0_0.5px_rgba(0,0,0,0.05)] transition-[transform,filter] duration-100 active:scale-[0.96] active:brightness-[0.94] disabled:opacity-45"
+            >
+              {pending === action.signal ? "…" : action.label}
+            </button>
+          );
+        })}
       </div>
     </li>
   );

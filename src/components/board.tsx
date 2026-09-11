@@ -8,6 +8,8 @@ import { getDeviceId } from "@/lib/device";
 import { distanceMetres } from "@/lib/scoring";
 import { GEO_RADIUS_M } from "@/lib/scoring/constants";
 import { ItemRow } from "./item-row";
+import { logEvent } from "@/lib/telemetry";
+import { Standing } from "./standing";
 import type { Item, ItemState, Shop, Signal, SubmitResult } from "@/lib/types";
 
 interface Props {
@@ -31,6 +33,10 @@ export function Board({ shops, items, initialStates }: Props) {
   // block websockets outright, so the board degrades to HTTPS polling rather
   // than silently going stale.
   const [mode, setMode] = useState<"connecting" | "live" | "polling">("connecting");
+  const [reportCount, setReportCount] = useState(0);
+
+  const activeShop = shops.find((s) => s.slug === activeSlug) ?? shops[0];
+  const activeShopId = activeShop?.id ?? null;
 
   const deviceId = useMemo(() => getDeviceId(), []);
   const coords = useRef<{ lat: number; lng: number } | null>(null);
@@ -88,6 +94,37 @@ export function Board({ shops, items, initialStates }: Props) {
     return () => clearInterval(id);
   }, [mode, refreshStates]);
 
+  useEffect(() => {
+    if (!deviceId) return;
+    logEvent("visit", deviceId);
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      logEvent("install", deviceId);
+    }
+  }, [deviceId]);
+
+  // Demand the shop never saw: somebody came looking and it had already gone.
+  // Recorded once per item per visit so a lingering tab cannot inflate it.
+  const missed = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!deviceId || !activeShopId) return;
+    logEvent("shop_view", deviceId, { shopId: activeShopId });
+    for (const item of items) {
+      if (item.shop_id !== activeShopId) continue;
+      const state = states[item.id]?.state;
+      if ((state === "sold_out" || state === "low") && !missed.current.has(item.id)) {
+        missed.current.add(item.id);
+        logEvent("item_missed", deviceId, {
+          shopId: activeShopId,
+          itemId: item.id,
+          meta: { state },
+        });
+      }
+    }
+    // Intentionally keyed on the shop only: this is a per-visit signal, not a
+    // subscription to every state change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceId, activeShopId]);
+
   // Location is a weighting hint, never a gate: a refused prompt must not
   // prevent anyone from reporting.
   useEffect(() => {
@@ -101,7 +138,6 @@ export function Board({ shops, items, initialStates }: Props) {
     );
   }, []);
 
-  const activeShop = shops.find((s) => s.slug === activeSlug) ?? shops[0];
   const visible = items.filter((i) => i.shop_id === activeShop?.id);
 
   const report = useCallback(
@@ -131,6 +167,8 @@ export function Board({ shops, items, initialStates }: Props) {
             description: geo ? "Verified at the counter, weighted higher." : undefined,
           });
           if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(12);
+          logEvent("report", deviceId, { itemId, meta: { signal, geo } });
+          setReportCount((n) => n + 1);
           // Don't wait on the transport to reflect the user's own action.
           void refreshStates();
         } else if (result.reason === "rate_limited") {
@@ -229,9 +267,16 @@ export function Board({ shops, items, initialStates }: Props) {
         </ul>
       )}
 
-      <footer className="mt-7 px-1 text-[12px] leading-[17px] text-(--color-ink-3)">
-        Availability is estimated from counts at the shop and reports from students, and fades as
-        it ages. The confidence shown is real — when nobody knows, it says so.
+      <Standing deviceId={deviceId} refreshKey={reportCount} />
+
+      <footer className="mt-6 px-1">
+        <p className="text-[12px] leading-[17px] text-(--color-ink-3)">
+          Availability is estimated from counts at the shop and reports from students, and fades as
+          it ages. The confidence shown is real — when nobody knows, it says so.
+        </p>
+        <p className="mt-3 text-[11px] text-(--color-ink-3)">
+          Built by <span className="font-serif text-[13px] text-(--color-ink-2)">Aromal S D</span>
+        </p>
       </footer>
     </main>
   );

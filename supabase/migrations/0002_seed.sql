@@ -31,7 +31,10 @@ insert into item_state (item_id)
 select id from items
 on conflict (item_id) do nothing;
 
--- Vendor PINs. Change these before the demo:
---   update shops set pin_hash = crypt('482913', gen_salt('bf')) where slug = 'canteen';
-update shops set pin_hash = crypt('482913', gen_salt('bf')) where slug = 'canteen' and pin_hash is null;
-update shops set pin_hash = crypt('715620', gen_salt('bf')) where slug = 'outside' and pin_hash is null;
+-- Vendor PINs are deliberately NOT set here. A PIN committed to the repository
+-- is a PIN anyone can read, and this one guards the ability to rewrite every
+-- count in the shop. Set them out of band, once, per environment:
+--
+--   npm run sql -- "update shops set pin_hash = crypt('<pin>', gen_salt('bf')) where slug = 'canteen'"
+--
+-- Until that is done the shop simply cannot sign in, which is the safe default.
