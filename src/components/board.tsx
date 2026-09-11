@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { tickNow, useClock } from "@/lib/use-clock";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/device";
@@ -20,10 +21,10 @@ export function Board({ shops, items, initialStates }: Props) {
   const [states, setStates] = useState<Record<string, ItemState>>(() =>
     Object.fromEntries(initialStates.map((s) => [s.item_id, s])),
   );
-  // Null until mounted. Decay depends on the wall clock, so computing it during
-  // SSR guarantees a hydration mismatch; the first paint renders exactly what
-  // the server stored and the clock starts afterwards.
-  const [now, setNow] = useState<Date | null>(null);
+  // Null during SSR and hydration: decay depends on the wall clock, so deriving
+  // it on the server guarantees a mismatch. The first paint renders exactly
+  // what the server stored and the clock takes over immediately after.
+  const now = useClock();
   const [watching, setWatching] = useState(1);
   const [pending, setPending] = useState<Record<string, Signal | null>>({});
   // Realtime is preferred but not assumed: many campus and corporate networks
@@ -33,13 +34,6 @@ export function Board({ shops, items, initialStates }: Props) {
 
   const deviceId = useMemo(() => getDeviceId(), []);
   const coords = useRef<{ lat: number; lng: number } | null>(null);
-
-  // Drives continuous confidence decay without touching the database.
-  useEffect(() => {
-    setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 5_000);
-    return () => clearInterval(id);
-  }, []);
 
   useEffect(() => {
     if (!deviceId) return;
@@ -52,7 +46,7 @@ export function Board({ shops, items, initialStates }: Props) {
           const row = payload.new as ItemState | null;
           if (!row?.item_id) return;
           setStates((prev) => ({ ...prev, [row.item_id]: row }));
-          setNow(new Date());
+          tickNow();
         },
       )
       .on("presence", { event: "sync" }, () => {
@@ -81,11 +75,14 @@ export function Board({ shops, items, initialStates }: Props) {
     const { data } = await supabase.from("item_state").select("*");
     if (!data) return;
     setStates(Object.fromEntries((data as ItemState[]).map((s) => [s.item_id, s])));
-    setNow(new Date());
+    tickNow();
   }, []);
 
   useEffect(() => {
     if (mode !== "polling") return;
+    // refreshStates only sets state after an awaited round trip, so this never
+    // re-renders synchronously; the rule cannot see across the async boundary.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshStates();
     const id = setInterval(() => void refreshStates(), 6_000);
     return () => clearInterval(id);

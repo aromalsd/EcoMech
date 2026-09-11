@@ -1,20 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/device";
+import {
+  parseVendorSession,
+  saveVendorSession,
+  vendorStore,
+  type VendorSession,
+} from "@/lib/vendor-session";
 import type { Item, ItemState, Shop, VendorLoginResult } from "@/lib/types";
-
-const SESSION_KEY = "kada.vendor";
-
-interface Stored {
-  token: string;
-  shopId: string;
-  slug: string;
-}
 
 interface Props {
   shops: Shop[];
@@ -23,46 +21,22 @@ interface Props {
 }
 
 export function VendorConsole({ shops, items, states }: Props) {
-  const [session, setSession] = useState<Stored | null>(null);
-  const [ready, setReady] = useState(false);
+  const raw = useSyncExternalStore(
+    vendorStore.subscribe,
+    vendorStore.getSnapshot,
+    vendorStore.getServerSnapshot,
+  );
+  const session = useMemo(() => parseVendorSession(raw), [raw]);
+  const signOut = useCallback(() => saveVendorSession(null), []);
 
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(SESSION_KEY);
-      if (raw) setSession(JSON.parse(raw) as Stored);
-    } catch {
-      // Corrupt or unavailable storage just means signing in again.
-    }
-    setReady(true);
-  }, []);
+  // `undefined` means storage has not been consulted yet (server render and the
+  // hydration pass), which is different from "signed out".
+  if (raw === undefined) return <main className="min-h-dvh" />;
 
-  const signOut = useCallback(() => {
-    try {
-      window.localStorage.removeItem(SESSION_KEY);
-    } catch {
-      /* nothing to clear */
-    }
-    setSession(null);
-  }, []);
+  const shop = session ? shops.find((s) => s.id === session.shopId) : undefined;
 
-  const remember = useCallback((next: Stored) => {
-    try {
-      window.localStorage.setItem(SESSION_KEY, JSON.stringify(next));
-    } catch {
-      /* still usable for this visit */
-    }
-    setSession(next);
-  }, []);
-
-  if (!ready) return <main className="min-h-dvh" />;
-
-  if (!session) return <PinGate shops={shops} onAuthed={remember} />;
-
-  const shop = shops.find((s) => s.id === session.shopId);
-  if (!shop) {
-    signOut();
-    return <main className="min-h-dvh" />;
-  }
+  // No session, or one pointing at a shop that no longer exists.
+  if (!session || !shop) return <PinGate shops={shops} onAuthed={saveVendorSession} />;
 
   return (
     <Counter
@@ -75,7 +49,7 @@ export function VendorConsole({ shops, items, states }: Props) {
   );
 }
 
-function PinGate({ shops, onAuthed }: { shops: Shop[]; onAuthed: (s: Stored) => void }) {
+function PinGate({ shops, onAuthed }: { shops: Shop[]; onAuthed: (s: VendorSession) => void }) {
   const [slug, setSlug] = useState(shops[0]?.slug ?? "");
   const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
