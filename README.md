@@ -15,28 +15,43 @@
 **Live at [puffsundo.vercel.app](https://puffsundo.vercel.app)**
 
 ### Project Description
-Kada is a live availability board for the two places on campus that sell puffs. It tells you
-whether anything is left before you walk over. Neither shop has a till, a scanner, or any
-inventory system, so the answer is reconstructed from vendor counts and student reports using
-weighted consensus with time-decay and per-device reputation.
+Kada tells you whether there are puffs left, before you walk to the counter and find out the
+hard way.
+
+Neither shop has a till, a barcode scanner, or the slightest interest in acquiring one. So rather
+than reading stock from a system, Kada reconstructs it — from what the shopkeeper says, what
+students report, and a scoring model that trusts every one of them slightly less as the minutes
+pass.
+
+It is a distributed consensus system. It is about puffs.
 
 ### The Problem (that doesn't exist)
-Every day, students walk all the way to the canteen to discover the puffs are gone. This costs
-roughly forty metres of walking and a small amount of dignity. Humanity has tolerated this for
-centuries. Nobody has ever asked for it to be fixed, because you could simply, you know, walk
-over and look.
+You walk forty metres to the canteen. The puffs are gone. You walk forty metres back.
+
+This has happened to students for as long as canteens have existed, and everyone has coped,
+because the fix is to look at the counter with your eyes. Nobody has filed a complaint. There is
+no market. The entire cost of the problem is forty metres and a small private disappointment.
+
+We decided this was unacceptable.
 
 ### The Solution (that nobody asked for)
-We applied Byzantine-fault-tolerant distributed consensus to a ₹12 snack.
+We applied Byzantine fault tolerance to a ₹12 snack.
 
-Reports from students are treated as untrusted inputs to a scoring model: each one is weighted by
-the reporter's Beta-distributed reputation, boosted if their phone confirms they are physically
-at the counter, and decayed exponentially with a time constant that tightens during break hours
-because puffs move faster at 10:45. The shopkeeper's count, when given, is ground truth and
-resets the ledger. The result is a confidence value the interface refuses to overstate — if
-nobody knows, it says nobody knows.
+Every student report enters a consensus model as an untrusted claim. It is weighted by that
+reporter's Beta-distributed reputation, multiplied by 1.4 if their phone can prove they are
+actually standing at the counter, and decayed exponentially — with a shorter half-life during
+break hours, because puffs move faster at 10:45 than at three in the afternoon. When the
+shopkeeper enters a real count it becomes ground truth, wipes the ledger, and retroactively
+grades everyone who spoke in the previous twenty-five minutes. Lie about puffs often enough and
+the system quietly stops believing you. It never mentions this.
 
-It is an enormous amount of statistics to avoid a short walk. It also genuinely works.
+The board will also admit when it has no idea, which turned out to be the hard part. It is very
+easy to build something that always sounds confident. It is considerably harder to build
+something willing to say *nobody has looked recently*.
+
+Seven items. Two shops. Twenty-eight unit tests, none of which are about food.
+
+It works, which is somehow the most upsetting part.
 
 ## Technical Details
 ### Technologies/Components Used
