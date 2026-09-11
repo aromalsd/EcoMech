@@ -1,26 +1,91 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-canvas: #fbfbfa;
+  --color-surface: #ffffff;
+  --color-raised: #ffffff;
+  --color-line: #e7e5e1;
+  --color-line-strong: #d6d3cd;
+  --color-ink: #16150f;
+  --color-ink-soft: #5c594f;
+  --color-ink-faint: #8b877a;
+
+  --color-ok: #0f7d4a;
+  --color-ok-bg: #e8f5ed;
+  --color-warn: #a15c00;
+  --color-warn-bg: #fdf2e0;
+  --color-bad: #b3261e;
+  --color-bad-bg: #fdeceb;
+  --color-hazy: #4a5a73;
+  --color-hazy-bg: #eef1f6;
+  --color-void: #6f6c62;
+  --color-void-bg: #f2f1ee;
+
+  --color-accent: #16150f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --color-canvas: #0c0c0b;
+      --color-surface: #141413;
+      --color-raised: #1b1b19;
+      --color-line: #2a2a27;
+      --color-line-strong: #3a3a36;
+      --color-ink: #f5f4f0;
+      --color-ink-soft: #a6a399;
+      --color-ink-faint: #74716a;
+
+      --color-ok: #4ade80;
+      --color-ok-bg: #0f2a1c;
+      --color-warn: #fbbf24;
+      --color-warn-bg: #2c1f07;
+      --color-bad: #fb7185;
+      --color-bad-bg: #2d1116;
+      --color-hazy: #93a4c0;
+      --color-hazy-bg: #161d29;
+      --color-void: #8b8880;
+      --color-void-bg: #1c1c1a;
+
+      --color-accent: #f5f4f0;
+    }
+  }
+
+  html,
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Never let a tap highlight flash on the report buttons. */
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Tabular figures keep counts from jittering as they change. */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }

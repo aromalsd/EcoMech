@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate": "node scripts/migrate.mjs"
+    "migrate": "node scripts/migrate.mjs",
+    "sql": "node scripts/sql.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
