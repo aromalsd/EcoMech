@@ -20,7 +20,10 @@ export function Board({ shops, items, initialStates }: Props) {
   const [states, setStates] = useState<Record<string, ItemState>>(() =>
     Object.fromEntries(initialStates.map((s) => [s.item_id, s])),
   );
-  const [now, setNow] = useState(() => new Date());
+  // Null until mounted. Decay depends on the wall clock, so computing it during
+  // SSR guarantees a hydration mismatch; the first paint renders exactly what
+  // the server stored and the clock starts afterwards.
+  const [now, setNow] = useState<Date | null>(null);
   const [watching, setWatching] = useState(1);
   const [pending, setPending] = useState<Record<string, Signal | null>>({});
   // Realtime is preferred but not assumed: many campus and corporate networks
@@ -33,6 +36,7 @@ export function Board({ shops, items, initialStates }: Props) {
 
   // Drives continuous confidence decay without touching the database.
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 5_000);
     return () => clearInterval(id);
   }, []);

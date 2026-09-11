@@ -8,13 +8,18 @@ import type { BoardItem, Signal } from "@/lib/types";
 
 interface Props {
   item: BoardItem;
-  now: Date;
+  /** Null before mount, so server and client agree on the first paint. */
+  now: Date | null;
   pending: Signal | null;
   onReport: (signal: Signal) => void;
 }
 
-export function ItemCard({ item, now, pending, onReport }: Props) {
+export function ItemCard({ item, now: liveNow, pending, onReport }: Props) {
   const raw = item.state;
+
+  // Anchoring to the row's own timestamp makes the pre-mount render a pure
+  // function of the data, and yields zero elapsed time (no decay applied).
+  const now = liveNow ?? new Date(raw?.updated_at ?? 0);
 
   // Re-derive locally so confidence visibly decays between server writes.
   const verdict = raw
@@ -90,9 +95,12 @@ export function ItemCard({ item, now, pending, onReport }: Props) {
           aria-valuemax={100}
           aria-label={`Confidence ${confidencePct} percent`}
         >
+          {/* scaleX rather than width: animating width from `auto` does not
+              resolve to a percentage, and a transform avoids layout work. */}
           <motion.div
-            className={`h-full rounded-full ${tone.dot}`}
-            animate={{ width: `${confidencePct}%` }}
+            className={`h-full w-full origin-left rounded-full ${tone.dot}`}
+            initial={false}
+            animate={{ scaleX: verdict.confidence }}
             transition={{ type: "spring", stiffness: 160, damping: 28 }}
           />
         </div>
