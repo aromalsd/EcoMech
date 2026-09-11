@@ -7,23 +7,29 @@
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
 
-  /* Warm neutrals. A grouped list sits on the canvas; rows sit on surface. */
-  --color-canvas: #f4f3f0;
-  --color-surface: #ffffff;
-  --color-separator: rgba(0, 0, 0, 0.07);
-  --color-hairline: rgba(0, 0, 0, 0.1);
-  --color-fill: rgba(120, 118, 112, 0.11);
+  /* ui-serif resolves to New York on Apple platforms — SF's companion serif,
+     so the pairing is native rather than imitated, and costs no download. */
+  --font-serif: ui-serif, "New York", "Iowan Old Style", Charter, Georgia, serif;
 
-  --color-ink: #1a1a18;
-  --color-ink-2: #6b6862;
-  --color-ink-3: #9c9890;
+  --color-canvas: #f6f4f1;
+  --color-separator: rgba(0, 0, 0, 0.06);
+  --color-hairline: rgba(0, 0, 0, 0.08);
+  --color-fill: rgba(120, 118, 112, 0.1);
 
-  /* Desaturated, warm. These are accents, never fills. */
-  --color-ok: #3f7a55;
-  --color-low: #916428;
-  --color-bad: #a04b3f;
-  --color-hazy: #5b6472;
-  --color-void: #9c9890;
+  --color-ink: #191815;
+  --color-ink-2: #66625a;
+  --color-ink-3: #97928a;
+
+  --color-ok: #2f7d4f;
+  --color-ok-wash: rgba(47, 125, 79, 0.09);
+  --color-low: #a5641b;
+  --color-low-wash: rgba(165, 100, 27, 0.1);
+  --color-bad: #b0453a;
+  --color-bad-wash: rgba(176, 69, 58, 0.09);
+  --color-hazy: #5a6478;
+  --color-hazy-wash: rgba(90, 100, 120, 0.08);
+  --color-void: #97928a;
+  --color-void-wash: rgba(151, 146, 138, 0.07);
 
   --text-title: 1.9375rem;
   --text-title--line-height: 2.25rem;
@@ -40,9 +46,17 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Soft washes of colour give the frosted cards something to actually blur,
+     and keep the page warm without putting saturation on the content itself. */
   body {
-    background: var(--color-canvas);
     color: var(--color-ink);
+    background:
+      radial-gradient(42rem 26rem at 6% -6%, #ffcf9b 0%, rgba(255, 207, 155, 0) 66%),
+      radial-gradient(38rem 24rem at 98% 4%, #a8d8bd 0%, rgba(168, 216, 189, 0) 62%),
+      radial-gradient(40rem 28rem at 46% 42%, #f6c8c0 0%, rgba(246, 200, 192, 0) 60%),
+      radial-gradient(44rem 32rem at 52% 104%, #cdbcea 0%, rgba(205, 188, 234, 0) 64%),
+      var(--color-canvas);
+    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -67,8 +81,18 @@
   }
 }
 
-/* Hairline separators, inset to align with the row's text — the detail that
-   makes a grouped list read as native rather than as a stack of boxes. */
+/* Frosted panel: translucent, blurred, with a bright inner edge along the top
+   the way real glass catches light. */
+.glass {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.9),
+    0 0 0 0.5px rgba(0, 0, 0, 0.045),
+    0 10px 30px -18px rgba(30, 25, 15, 0.32);
+}
+
 .rows > * + * {
   border-top: 0.5px solid var(--color-hairline);
 }

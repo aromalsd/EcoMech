@@ -157,7 +157,7 @@ export function Board({ shops, items, initialStates }: Props) {
     <main className="mx-auto w-full max-w-[34rem] px-4 pb-20 pt-[max(1.5rem,env(safe-area-inset-top))]">
       <header className="px-1">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-title font-bold">Kada</h1>
+          <h1 className="font-serif text-[40px] leading-[46px] tracking-[-0.02em]">Kada</h1>
           <span className="flex items-center gap-[6px] text-[12px] text-(--color-ink-3)">
             <span
               aria-hidden
@@ -183,7 +183,7 @@ export function Board({ shops, items, initialStates }: Props) {
       <div
         role="tablist"
         aria-label="Outlets"
-        className="mt-5 flex gap-[2px] rounded-[9px] bg-(--color-fill) p-[2px]"
+        className="glass mt-5 flex gap-[3px] rounded-full p-[3px]"
       >
         {shops.map((shop) => {
           const selected = shop.slug === activeShop?.slug;
@@ -193,9 +193,9 @@ export function Board({ shops, items, initialStates }: Props) {
               role="tab"
               aria-selected={selected}
               onClick={() => setActiveSlug(shop.slug)}
-              className={`flex-1 rounded-[7px] px-3 py-[7px] text-[13px] font-medium transition-colors ${
+              className={`flex-1 rounded-full px-3 py-[8px] text-[13.5px] font-semibold transition-colors ${
                 selected
-                  ? "bg-(--color-surface) text-(--color-ink) shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_1px_rgba(0,0,0,0.04)]"
+                  ? "bg-white text-(--color-ink) shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_1px_rgba(0,0,0,0.05)]"
                   : "text-(--color-ink-2)"
               }`}
             >
@@ -206,17 +206,17 @@ export function Board({ shops, items, initialStates }: Props) {
       </div>
 
       {activeShop?.subtitle ? (
-        <p className="mt-5 px-4 text-[13px] uppercase tracking-[0.05em] text-(--color-ink-3)">
+        <p className="mt-6 px-1 text-[12px] font-medium uppercase tracking-[0.07em] text-(--color-ink-3)">
           {activeShop.subtitle}
         </p>
       ) : null}
 
       {visible.length === 0 ? (
-        <p className="mt-3 rounded-[12px] bg-(--color-surface) px-4 py-10 text-center text-[15px] text-(--color-ink-3)">
+        <p className="glass mt-2 rounded-[22px] px-4 py-10 text-center text-[15px] text-(--color-ink-3)">
           Nothing on the menu here yet.
         </p>
       ) : (
-        <ul className="rows mt-2 overflow-hidden rounded-[12px] bg-(--color-surface)">
+        <ul className="mt-2 flex flex-col gap-[10px]">
           {visible.map((item) => (
             <ItemRow
               key={item.id}
@@ -229,7 +229,7 @@ export function Board({ shops, items, initialStates }: Props) {
         </ul>
       )}
 
-      <footer className="mt-6 px-4 text-[12px] leading-[17px] text-(--color-ink-3)">
+      <footer className="mt-7 px-1 text-[12px] leading-[17px] text-(--color-ink-3)">
         Availability is estimated from counts at the shop and reports from students, and fades as
         it ages. The confidence shown is real — when nobody knows, it says so.
       </footer>

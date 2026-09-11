@@ -16,6 +16,18 @@ const COLOR: Record<AvailState, string> = {
   unknown: "var(--color-void)",
 };
 
+const WASH: Record<AvailState, string> = {
+  available: "var(--color-ok-wash)",
+  low: "var(--color-low-wash)",
+  sold_out: "var(--color-bad-wash)",
+  uncertain: "var(--color-hazy-wash)",
+  unknown: "var(--color-void-wash)",
+};
+
+export function stateWash(state: AvailState) {
+  return WASH[state];
+}
+
 export function stateLabel(state: AvailState) {
   return LABEL[state];
 }
@@ -24,16 +36,16 @@ export function stateColor(state: AvailState) {
   return COLOR[state];
 }
 
-/** A dot and a word. The dot is the only colour on the row. */
+/** A tinted capsule: enough colour to read across a room, still quiet. */
 export function StateMark({ state }: { state: AvailState }) {
   return (
     <span
-      className="inline-flex items-center gap-[6px] text-[13px] font-medium"
-      style={{ color: COLOR[state] }}
+      className="inline-flex items-center gap-[6px] rounded-full px-2.5 py-[5px] text-[12.5px] font-semibold whitespace-nowrap"
+      style={{ color: COLOR[state], background: WASH[state] }}
     >
       <span
         aria-hidden
-        className="size-[7px] shrink-0 rounded-full"
+        className="size-[6px] shrink-0 rounded-full"
         style={{ background: COLOR[state] }}
       />
       {LABEL[state]}

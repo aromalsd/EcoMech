@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { decayVerdict, displayState } from "@/lib/scoring";
 import { istClock, relativeTime, rupees } from "@/lib/format";
-import { StateMark } from "./state-mark";
+import { StateMark, stateColor } from "./state-mark";
 import type { BoardItem, Signal } from "@/lib/types";
 
 interface Props {
@@ -59,11 +59,11 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
   const confidencePct = Math.round(verdict.confidence * 100);
 
   return (
-    <li className="px-4 py-3">
-      <div className="flex items-start justify-between gap-4">
+    <li className="glass overflow-hidden rounded-[22px]">
+      <div className="flex items-start justify-between gap-4 px-[18px] pt-[15px]">
         <div className="min-w-0 flex-1">
-          <h3 className="text-[17px] font-semibold leading-6 tracking-[-0.01em]">{item.name}</h3>
-          <p className="mt-px text-[13px] leading-[18px] text-(--color-ink-3)">
+          <h3 className="font-serif text-[23px] leading-[30px] tracking-[-0.012em]">{item.name}</h3>
+          <p className="mt-[3px] text-[13px] leading-[18px] text-(--color-ink-3)">
             {price ? <span className="tnum">{price}</span> : null}
             {price ? " · " : null}
             {raw?.last_signal_at ? relativeTime(raw.last_signal_at, now) : "not reported yet"}
@@ -71,12 +71,15 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-1">
+        <div className="flex shrink-0 flex-col items-end gap-[7px]">
           {count != null ? (
             // Deliberately not animated on entry: the clock tick re-renders this
             // row every few seconds, and an entrance animation restarts with it,
             // leaving the most important number on the row faded out.
-            <span className="tnum text-[26px] font-semibold leading-7 tracking-[-0.02em]">
+            <span
+              className="tnum text-[30px] font-semibold leading-8 tracking-[-0.025em]"
+              style={{ color: stateColor(state) }}
+            >
               {count}
             </span>
           ) : null}
@@ -86,7 +89,7 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
 
       {/* Confidence stays deliberately neutral so the state dot remains the
           only colour that carries meaning. */}
-      <div className="mt-3 flex items-center gap-2.5">
+      <div className="mt-[14px] flex items-center gap-2.5 px-[18px]">
         <div
           className="h-[3px] flex-1 overflow-hidden rounded-full bg-(--color-fill)"
           role="meter"
@@ -96,7 +99,8 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
           aria-label={`Confidence ${confidencePct} percent`}
         >
           <motion.div
-            className="h-full w-full origin-left rounded-full bg-(--color-ink-3)"
+            className="h-full w-full origin-left rounded-full"
+            style={{ background: stateColor(state), opacity: 0.55 }}
             initial={false}
             animate={{ scaleX: verdict.confidence }}
             transition={{ type: "spring", stiffness: 160, damping: 28 }}
@@ -107,16 +111,14 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
         </span>
       </div>
 
-      {/* Full-bleed within the row and separated by hairlines, so the actions
-          read as part of the list rather than as a second segmented control. */}
-      <div className="-mx-4 -mb-3 mt-3 flex border-t-[0.5px] border-(--color-separator)">
+      <div className="mt-[14px] flex border-t-[0.5px] border-(--color-separator)">
         {ACTIONS.map((action, index) => (
           <button
             key={action.signal}
             type="button"
             onClick={() => onReport(action.signal)}
             disabled={pending !== null}
-            className={`h-11 flex-1 text-[14px] font-medium text-(--color-ink-2) transition-colors active:bg-black/[0.04] disabled:opacity-40 ${
+            className={`h-[46px] flex-1 text-[14px] font-medium text-(--color-ink-2) transition-colors active:bg-black/[0.05] disabled:opacity-40 ${
               index > 0 ? "border-l-[0.5px] border-(--color-separator)" : ""
             }`}
           >

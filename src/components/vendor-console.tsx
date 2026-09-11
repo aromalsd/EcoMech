@@ -82,21 +82,21 @@ function PinGate({ shops, onAuthed }: { shops: Shop[]; onAuthed: (s: VendorSessi
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-[22rem] flex-col justify-center px-6">
-      <h1 className="text-title font-bold">Counter</h1>
+      <h1 className="font-serif text-[40px] leading-[46px] tracking-[-0.02em]">Counter</h1>
       <p className="mt-1 text-[15px] leading-5 text-(--color-ink-2)">
         Enter your PIN to update what&apos;s left.
       </p>
 
       {shops.length > 1 ? (
-        <div className="mt-6 flex gap-[2px] rounded-[9px] bg-(--color-fill) p-[2px]">
+        <div className="glass mt-6 flex gap-[3px] rounded-full p-[3px]">
           {shops.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => setSlug(s.slug)}
-              className={`flex-1 rounded-[7px] px-3 py-[7px] text-[13px] font-medium transition-colors ${
+              className={`flex-1 rounded-full px-3 py-[8px] text-[13.5px] font-semibold transition-colors ${
                 s.slug === slug
-                  ? "bg-(--color-surface) text-(--color-ink) shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_1px_rgba(0,0,0,0.04)]"
+                  ? "bg-white text-(--color-ink) shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_1px_rgba(0,0,0,0.05)]"
                   : "text-(--color-ink-2)"
               }`}
             >
@@ -114,14 +114,14 @@ function PinGate({ shops, onAuthed }: { shops: Shop[]; onAuthed: (s: VendorSessi
         autoComplete="one-time-code"
         placeholder="••••••"
         aria-label="PIN"
-        className="tnum mt-4 w-full rounded-[12px] bg-(--color-surface) px-4 py-4 text-center text-[26px] tracking-[0.4em] shadow-[inset_0_0_0_0.5px_var(--color-hairline)] outline-none focus:shadow-[inset_0_0_0_1.5px_var(--color-ink)]"
+        className="glass tnum mt-4 w-full rounded-[18px] px-4 py-4 text-center text-[26px] tracking-[0.4em] outline-none focus:shadow-[inset_0_0_0_1.5px_var(--color-ink)]"
       />
 
       <button
         type="button"
         onClick={() => void submit()}
         disabled={pin.length < 4 || busy}
-        className="mt-3 min-h-12 rounded-[12px] bg-(--color-ink) px-4 text-[16px] font-medium text-white transition-opacity active:opacity-80 disabled:opacity-30"
+        className="mt-3 min-h-[52px] rounded-[18px] bg-(--color-ink) px-4 text-[16px] font-semibold text-white transition-opacity active:opacity-80 disabled:opacity-30"
       >
         {busy ? "Checking…" : "Open counter"}
       </button>
@@ -200,22 +200,22 @@ function Counter({
   return (
     <main className="mx-auto w-full max-w-[34rem] px-4 pb-20 pt-[max(1.5rem,env(safe-area-inset-top))]">
       <header className="mb-5 px-1">
-        <h1 className="text-title font-bold">{shop.name}</h1>
+        <h1 className="font-serif text-[36px] leading-[42px] tracking-[-0.02em]">{shop.name}</h1>
         <p className="mt-1 text-[15px] leading-5 text-(--color-ink-2)">
           Tap to update what&apos;s left.
         </p>
       </header>
 
-      <ul className="rows overflow-hidden rounded-[12px] bg-(--color-surface)">
+      <ul className="flex flex-col gap-[10px]">
         {items.map((item) => {
           const value = counts[item.id] ?? 0;
           return (
             <li
               key={item.id}
-              className="flex items-center gap-3 px-4 py-3"
+              className="glass flex items-center gap-3 rounded-[22px] px-[18px] py-[14px]"
             >
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[17px] font-semibold leading-6 tracking-[-0.01em]">
+                <div className="truncate font-serif text-[23px] leading-[30px] tracking-[-0.012em]">
                   {item.name}
                 </div>
                 <div className="mt-px text-[13px] leading-[18px] text-(--color-ink-3)">
@@ -273,7 +273,7 @@ function StepButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex size-11 items-center justify-center rounded-full bg-(--color-fill) text-(--color-ink) transition-colors active:bg-black/[0.10] disabled:opacity-25"
+      className="flex size-11 items-center justify-center rounded-full bg-black/[0.06] text-(--color-ink) transition-colors active:bg-black/[0.12] disabled:opacity-25"
     >
       {children}
     </button>
