@@ -6,13 +6,11 @@
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: Aromal S D (Individual)
 
 
 ### Team Members
-- Team Lead: Aromal S D - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: Aromal S D - [College of Engineering Perumon]
 
 **Live at [puffsundo.vercel.app](https://puffsundo.vercel.app)**
 
@@ -131,20 +129,6 @@ For Software:
 ![Workflow](Add your workflow/architecture diagram here)
 *Reports enter an append-only ledger; a trigger collapses them into derived state, which is
 pushed to every open client.*
-
-### Project Demo
-# Video
-[Add your demo video link here]
-*Shows a report from one phone appearing on another device, a shop count overriding the crowd,
-and the rate limiter refusing a flood of fake reports.*
-
-# Additional Demos
-[Add any extra demo materials/links]
-
-## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
