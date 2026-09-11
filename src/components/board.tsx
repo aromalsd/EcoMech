@@ -297,7 +297,10 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
           </a>
           <span aria-hidden>·</span>
           <span>
-            Built by <span className="font-serif text-[13px] text-(--color-ink-2)">Aromal S D</span>
+            Built by{" "}
+            <span className="font-serif text-[15px] italic tracking-[0.04em] text-(--color-ink-2)">
+              S D
+            </span>
           </span>
         </p>
       </footer>

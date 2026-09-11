@@ -115,20 +115,47 @@ entering counts, and the counts are what keep the whole model honest.
 ### Project Documentation
 For Software:
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*The public board: derived state, live confidence, and the shop's count where one exists.*
+# Screenshots
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*A single unverified "sold out" moves the item to Unclear rather than flipping it.*
+![The board](assets/board.png)
+*The board. Each item shows the shop's own count where one is fresh, the state it implies, and how
+confident the model currently is — 75% for a puff counted a minute ago, already falling.*
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*The counter console: oversized steppers, designed to be usable in three seconds.*
+![Honest uncertainty](assets/uncertainty.png)
+*One student reporting "all gone" does not flip the board. It moves to **Not sure** at 21%, because
+a single unverified voice is not evidence. Two items below it say **No word yet** rather than
+guessing — the interface is not allowed to overstate what it knows.*
+
+![The counter console](assets/counter.png)
+*What the shop sees. Oversized steppers usable with one thumb in about three seconds, and beneath
+them the figure a till can never show: people who walked over after something had already run out.*
+
+![How it knows](assets/stats.png)
+*The public accounting. Every claim the board makes about its own accuracy is checkable here.*
 
 # Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Reports enter an append-only ledger; a trigger collapses them into derived state, which is
-pushed to every open client.*
+
+```mermaid
+flowchart TD
+    ST["Student<br/>anonymous device"] -->|"available / low / sold out"| SR["submit_report()<br/>rate limits · reputation · geo boost"]
+    SH["Shop<br/>PIN session"] -->|"exact count"| VS["vendor_set()<br/>ground truth"]
+
+    SR --> LG[("reports<br/>append-only ledger")]
+    VS --> LG
+
+    VS -.->|"grades the 25 min before it"| REP[("devices<br/>Beta posterior")]
+    REP -.->|"sets each report's weight"| SR
+
+    LG --> RC{{"recompute_item_state()<br/>decay · weighted sum · confidence"}}
+    RC --> IS[("item_state<br/>derived, never authored")]
+
+    IS -->|"Realtime, or polling where<br/>websockets are blocked"| BD["The board"]
+    BD -.->|"decays locally between writes"| BD
+```
+
+*Nothing writes availability directly. Reports land in an append-only ledger, a trigger collapses
+them into derived state, and that is the only table a client can read. A count from the shop resets
+the ledger for that item and grades whoever spoke just before it.*
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
