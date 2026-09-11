@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/device";
 import { distanceMetres } from "@/lib/scoring";
 import { GEO_RADIUS_M } from "@/lib/scoring/constants";
-import { ItemCard } from "./item-card";
+import { ItemRow } from "./item-row";
 import type { Item, ItemState, Shop, Signal, SubmitResult } from "@/lib/types";
 
 interface Props {
@@ -154,30 +154,37 @@ export function Board({ shops, items, initialStates }: Props) {
   );
 
   return (
-    <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-6 sm:pt-10">
-      <header className="mb-6">
-        <div className="flex items-baseline justify-between gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Kada</h1>
-          <span className="flex items-center gap-1.5 text-xs text-(--color-ink-faint)">
+    <main className="mx-auto w-full max-w-[34rem] px-4 pb-20 pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <header className="px-1">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-title font-bold">Kada</h1>
+          <span className="flex items-center gap-[6px] text-[12px] text-(--color-ink-3)">
             <span
-              className={`size-1.5 rounded-full ${
-                mode === "live"
-                  ? "bg-(--color-ok)"
-                  : mode === "polling"
-                    ? "bg-(--color-warn)"
-                    : "bg-(--color-void)"
-              }`}
               aria-hidden
+              className="size-[6px] rounded-full"
+              style={{
+                background:
+                  mode === "live"
+                    ? "var(--color-ok)"
+                    : mode === "polling"
+                      ? "var(--color-low)"
+                      : "var(--color-void)",
+              }}
             />
-            {mode === "live" ? `${watching} watching` : mode === "polling" ? "updating" : "connecting"}
+            {mode === "live" ? `${watching} here now` : mode === "polling" ? "Updating" : "Connecting"}
           </span>
         </div>
-        <p className="mt-1 text-sm text-(--color-ink-soft)">
-          Live counter for campus snacks. Tell everyone what&apos;s left.
+        <p className="mt-1 text-[15px] leading-5 text-(--color-ink-2)">
+          What&apos;s left at the counter, right now.
         </p>
       </header>
 
-      <div role="tablist" aria-label="Outlets" className="mb-5 flex gap-1 rounded-xl bg-(--color-void-bg) p-1">
+      {/* iOS-style segmented control */}
+      <div
+        role="tablist"
+        aria-label="Outlets"
+        className="mt-5 flex gap-[2px] rounded-[9px] bg-(--color-fill) p-[2px]"
+      >
         {shops.map((shop) => {
           const selected = shop.slug === activeShop?.slug;
           return (
@@ -186,10 +193,10 @@ export function Board({ shops, items, initialStates }: Props) {
               role="tab"
               aria-selected={selected}
               onClick={() => setActiveSlug(shop.slug)}
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 rounded-[7px] px-3 py-[7px] text-[13px] font-medium transition-colors ${
                 selected
-                  ? "bg-(--color-surface) text-(--color-ink) shadow-sm"
-                  : "text-(--color-ink-soft) hover:text-(--color-ink)"
+                  ? "bg-(--color-surface) text-(--color-ink) shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_1px_rgba(0,0,0,0.04)]"
+                  : "text-(--color-ink-2)"
               }`}
             >
               {shop.name}
@@ -199,17 +206,19 @@ export function Board({ shops, items, initialStates }: Props) {
       </div>
 
       {activeShop?.subtitle ? (
-        <p className="mb-4 text-xs text-(--color-ink-faint)">{activeShop.subtitle}</p>
+        <p className="mt-5 px-4 text-[13px] uppercase tracking-[0.05em] text-(--color-ink-3)">
+          {activeShop.subtitle}
+        </p>
       ) : null}
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-(--color-line) p-8 text-center text-sm text-(--color-ink-faint)">
+        <p className="mt-3 rounded-[12px] bg-(--color-surface) px-4 py-10 text-center text-[15px] text-(--color-ink-3)">
           Nothing on the menu here yet.
         </p>
       ) : (
-        <ul className="grid gap-3">
+        <ul className="rows mt-2 overflow-hidden rounded-[12px] bg-(--color-surface)">
           {visible.map((item) => (
-            <ItemCard
+            <ItemRow
               key={item.id}
               item={{ ...item, state: states[item.id] ?? null }}
               now={now}
@@ -220,10 +229,9 @@ export function Board({ shops, items, initialStates }: Props) {
         </ul>
       )}
 
-      <footer className="mt-8 text-center text-[11px] leading-relaxed text-(--color-ink-faint)">
-        Availability is estimated from vendor counts and student reports, and decays as it ages.
-        <br />
-        Confidence shown is real — an empty bar means nobody knows.
+      <footer className="mt-6 px-4 text-[12px] leading-[17px] text-(--color-ink-3)">
+        Availability is estimated from counts at the shop and reports from students, and fades as
+        it ages. The confidence shown is real — when nobody knows, it says so.
       </footer>
     </main>
   );

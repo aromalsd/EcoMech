@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
-import { motion } from "motion/react";
 import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -82,23 +81,23 @@ function PinGate({ shops, onAuthed }: { shops: Shop[]; onAuthed: (s: VendorSessi
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6">
-      <h1 className="text-xl font-semibold tracking-tight">Counter</h1>
-      <p className="mt-1 text-sm text-(--color-ink-soft)">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[22rem] flex-col justify-center px-6">
+      <h1 className="text-title font-bold">Counter</h1>
+      <p className="mt-1 text-[15px] leading-5 text-(--color-ink-2)">
         Enter your PIN to update what&apos;s left.
       </p>
 
       {shops.length > 1 ? (
-        <div className="mt-6 flex gap-1 rounded-xl bg-(--color-void-bg) p-1">
+        <div className="mt-6 flex gap-[2px] rounded-[9px] bg-(--color-fill) p-[2px]">
           {shops.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => setSlug(s.slug)}
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 rounded-[7px] px-3 py-[7px] text-[13px] font-medium transition-colors ${
                 s.slug === slug
-                  ? "bg-(--color-surface) text-(--color-ink) shadow-sm"
-                  : "text-(--color-ink-soft)"
+                  ? "bg-(--color-surface) text-(--color-ink) shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_1px_rgba(0,0,0,0.04)]"
+                  : "text-(--color-ink-2)"
               }`}
             >
               {s.name}
@@ -115,14 +114,14 @@ function PinGate({ shops, onAuthed }: { shops: Shop[]; onAuthed: (s: VendorSessi
         autoComplete="one-time-code"
         placeholder="••••••"
         aria-label="PIN"
-        className="tnum mt-4 w-full rounded-xl border border-(--color-line) bg-(--color-surface) px-4 py-4 text-center text-2xl tracking-[0.4em] outline-none focus:border-(--color-line-strong)"
+        className="tnum mt-4 w-full rounded-[12px] bg-(--color-surface) px-4 py-4 text-center text-[26px] tracking-[0.4em] shadow-[inset_0_0_0_0.5px_var(--color-hairline)] outline-none focus:shadow-[inset_0_0_0_1.5px_var(--color-ink)]"
       />
 
       <button
         type="button"
         onClick={() => void submit()}
         disabled={pin.length < 4 || busy}
-        className="mt-3 min-h-12 rounded-xl bg-(--color-accent) px-4 font-medium text-(--color-canvas) transition-opacity disabled:opacity-40"
+        className="mt-3 min-h-12 rounded-[12px] bg-(--color-ink) px-4 text-[16px] font-medium text-white transition-opacity active:opacity-80 disabled:opacity-30"
       >
         {busy ? "Checking…" : "Open counter"}
       </button>
@@ -199,28 +198,27 @@ function Counter({
   };
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 pb-16 pt-6">
-      <header className="mb-6 flex items-baseline justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{shop.name}</h1>
-          <p className="mt-0.5 text-sm text-(--color-ink-soft)">Tap to update what&apos;s left.</p>
-        </div>
+    <main className="mx-auto w-full max-w-[34rem] px-4 pb-20 pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <header className="mb-5 px-1">
+        <h1 className="text-title font-bold">{shop.name}</h1>
+        <p className="mt-1 text-[15px] leading-5 text-(--color-ink-2)">
+          Tap to update what&apos;s left.
+        </p>
       </header>
 
-      <ul className="grid gap-3">
+      <ul className="rows overflow-hidden rounded-[12px] bg-(--color-surface)">
         {items.map((item) => {
           const value = counts[item.id] ?? 0;
           return (
             <li
               key={item.id}
-              className="flex items-center gap-3 rounded-2xl border border-(--color-line) bg-(--color-surface) p-3"
+              className="flex items-center gap-3 px-4 py-3"
             >
-              <span aria-hidden className="text-2xl leading-none">
-                {item.emoji ?? "🍽"}
-              </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate font-semibold tracking-tight">{item.name}</div>
-                <div className="text-xs text-(--color-ink-faint)">
+                <div className="truncate text-[17px] font-semibold leading-6 tracking-[-0.01em]">
+                  {item.name}
+                </div>
+                <div className="mt-px text-[13px] leading-[18px] text-(--color-ink-3)">
                   {saving === item.id
                     ? "saving…"
                     : !counted.has(item.id)
@@ -240,16 +238,7 @@ function Counter({
                   <Minus className="size-5" aria-hidden />
                 </StepButton>
 
-                <motion.span
-                  key={value}
-                  aria-hidden={!counted.has(item.id)}
-                  initial={{ scale: 0.8, opacity: 0.4 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 420, damping: 22 }}
-                  className="tnum w-10 text-center text-2xl font-semibold"
-                >
-                  {value}
-                </motion.span>
+                <span className="tnum w-10 text-center text-2xl font-semibold">{value}</span>
 
                 <StepButton label={`One more ${item.name}`} onClick={() => adjust(item.id, 1)}>
                   <Plus className="size-5" aria-hidden />
@@ -260,8 +249,8 @@ function Counter({
         })}
       </ul>
 
-      <p className="mt-6 text-center text-[11px] text-(--color-ink-faint)">
-        Your counts are treated as the truth and reset what students have reported.
+      <p className="mt-5 px-4 text-[12px] leading-[17px] text-(--color-ink-3)">
+        Your counts are treated as the truth, and replace whatever students have reported.
       </p>
     </main>
   );
@@ -284,7 +273,7 @@ function StepButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex size-12 items-center justify-center rounded-xl border border-(--color-line) text-(--color-ink) transition-colors active:bg-(--color-void-bg) disabled:opacity-30"
+      className="flex size-11 items-center justify-center rounded-full bg-(--color-fill) text-(--color-ink) transition-colors active:bg-black/[0.10] disabled:opacity-25"
     >
       {children}
     </button>

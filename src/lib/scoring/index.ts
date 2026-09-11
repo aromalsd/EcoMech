@@ -155,6 +155,26 @@ export function decayVerdict(
   };
 }
 
+/**
+ * Resolve what the interface should actually say.
+ *
+ * A count from the shop is ground truth, so while it is fresh and nobody has
+ * contradicted it since, the state comes straight from the count rather than
+ * from the consensus score — otherwise "2 left" collapses into "not sure",
+ * because a `low` signal is deliberately weak in the scoring model.
+ */
+export function displayState(input: {
+  verdict: Verdict;
+  count: number | null;
+  vendorFresh: boolean;
+  vendorIsLatest: boolean;
+}): AvailState {
+  const { verdict, count, vendorFresh, vendorIsLatest } = input;
+  if (verdict.state === "unknown") return "unknown";
+  if (count != null && vendorFresh && vendorIsLatest) return countToSignal(count);
+  return verdict.state;
+}
+
 /** Great-circle distance in metres, for the geolocation weight boost. */
 export function distanceMetres(
   a: { lat: number; lng: number },

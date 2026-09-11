@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   countToSignal,
+  displayState,
   decayVerdict,
   decayedWeight,
   evaluate,
@@ -8,7 +9,9 @@ import {
   isRushHour,
   reputationMultiplier,
   tauMinutes,
+  type AvailState,
   type LedgerEntry,
+  type Verdict,
 } from "./index";
 import { TAU_CALM_MIN, TAU_RUSH_MIN, W_STUDENT, W_VENDOR } from "./constants";
 
@@ -129,8 +132,8 @@ describe("aggregation", () => {
     const at = ist(15, 0);
     const ledger: LedgerEntry[] = [{ signal: "available", weight: W_VENDOR, at }];
     expect(evaluate(ledger, at).state).toBe("available");
-    expect(evaluate(ledger, new Date(at.getTime() + 40 * 60_000)).state).toBe("uncertain");
-    expect(evaluate(ledger, new Date(at.getTime() + 90 * 60_000)).state).toBe("unknown");
+    expect(evaluate(ledger, new Date(at.getTime() + 60 * 60_000)).state).toBe("uncertain");
+    expect(evaluate(ledger, new Date(at.getTime() + 100 * 60_000)).state).toBe("unknown");
   });
 
   it("ignores reports beyond the ledger window", () => {
@@ -194,7 +197,7 @@ describe("client-side decay", () => {
     const ledger: LedgerEntry[] = [{ signal: "available", weight: W_VENDOR, at }];
     const full = evaluate(ledger, now);
     const cheap = decayVerdict(
-      { score: 1, topWeight: 1, updatedAt: at, lastSignalAt: at },
+      { score: W_VENDOR, topWeight: W_VENDOR, updatedAt: at, lastSignalAt: at },
       now,
     );
     expect(cheap.score).toBeCloseTo(full.score, 6);
@@ -210,6 +213,61 @@ describe("client-side decay", () => {
     );
     expect(v.state).toBe("unknown");
     expect(v.confidence).toBe(0);
+  });
+});
+
+describe("what the interface reports", () => {
+  const fresh = (state: AvailState, score: number): Verdict => ({
+    state,
+    score,
+    confidence: 0.5,
+    topWeight: 1,
+  });
+
+  it("shows a fresh count from the shop verbatim", () => {
+    // Two left scores only +0.8, which is below the availability threshold and
+    // would otherwise read as "not sure" despite being an exact count.
+    expect(
+      displayState({
+        verdict: fresh("uncertain", 0.8),
+        count: 2,
+        vendorFresh: true,
+        vendorIsLatest: true,
+      }),
+    ).toBe("low");
+  });
+
+  it("lets students override a count once they contradict it", () => {
+    expect(
+      displayState({
+        verdict: fresh("sold_out", -2),
+        count: 5,
+        vendorFresh: true,
+        vendorIsLatest: false,
+      }),
+    ).toBe("sold_out");
+  });
+
+  it("ignores a count that has gone stale", () => {
+    expect(
+      displayState({
+        verdict: fresh("uncertain", 0.1),
+        count: 5,
+        vendorFresh: false,
+        vendorIsLatest: true,
+      }),
+    ).toBe("uncertain");
+  });
+
+  it("never claims knowledge when the ledger is empty", () => {
+    expect(
+      displayState({
+        verdict: { state: "unknown", score: 0, confidence: 0, topWeight: 0 },
+        count: 5,
+        vendorFresh: true,
+        vendorIsLatest: true,
+      }),
+    ).toBe("unknown");
   });
 });
 

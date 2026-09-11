@@ -1,30 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* The system stack renders SF Pro on iPhone and Mac, Roboto on Android.
+     Matching the platform beats imitating it. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 
-  --color-canvas: #fbfbfa;
+  /* Warm neutrals. A grouped list sits on the canvas; rows sit on surface. */
+  --color-canvas: #f4f3f0;
   --color-surface: #ffffff;
-  --color-raised: #ffffff;
-  --color-line: #e7e5e1;
-  --color-line-strong: #d6d3cd;
-  --color-ink: #16150f;
-  --color-ink-soft: #5c594f;
-  --color-ink-faint: #8b877a;
+  --color-separator: rgba(0, 0, 0, 0.07);
+  --color-hairline: rgba(0, 0, 0, 0.1);
+  --color-fill: rgba(120, 118, 112, 0.11);
 
-  --color-ok: #0f7d4a;
-  --color-ok-bg: #e8f5ed;
-  --color-warn: #a15c00;
-  --color-warn-bg: #fdf2e0;
-  --color-bad: #b3261e;
-  --color-bad-bg: #fdeceb;
-  --color-hazy: #4a5a73;
-  --color-hazy-bg: #eef1f6;
-  --color-void: #6f6c62;
-  --color-void-bg: #f2f1ee;
+  --color-ink: #1a1a18;
+  --color-ink-2: #6b6862;
+  --color-ink-3: #9c9890;
 
-  --color-accent: #16150f;
+  /* Desaturated, warm. These are accents, never fills. */
+  --color-ok: #3f7a55;
+  --color-low: #916428;
+  --color-bad: #a04b3f;
+  --color-hazy: #5b6472;
+  --color-void: #9c9890;
+
+  --text-title: 1.9375rem;
+  --text-title--line-height: 2.25rem;
+  --text-title--letter-spacing: -0.022em;
 }
 
 @layer base {
@@ -32,47 +35,26 @@
     color-scheme: light;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --color-canvas: #0c0c0b;
-      --color-surface: #141413;
-      --color-raised: #1b1b19;
-      --color-line: #2a2a27;
-      --color-line-strong: #3a3a36;
-      --color-ink: #f5f4f0;
-      --color-ink-soft: #a6a399;
-      --color-ink-faint: #74716a;
-
-      --color-ok: #4ade80;
-      --color-ok-bg: #0f2a1c;
-      --color-warn: #fbbf24;
-      --color-warn-bg: #2c1f07;
-      --color-bad: #fb7185;
-      --color-bad-bg: #2d1116;
-      --color-hazy: #93a4c0;
-      --color-hazy-bg: #161d29;
-      --color-void: #8b8880;
-      --color-void-bg: #1c1c1a;
-
-      --color-accent: #f5f4f0;
-    }
+  html {
+    background: var(--color-canvas);
+    -webkit-text-size-adjust: 100%;
   }
 
-  html,
   body {
     background: var(--color-canvas);
     color: var(--color-ink);
-  }
-
-  body {
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Never let a tap highlight flash on the report buttons. */
   button {
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Numbers that change in place must not reflow the row. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -85,7 +67,8 @@
   }
 }
 
-/* Tabular figures keep counts from jittering as they change. */
-.tnum {
-  font-variant-numeric: tabular-nums;
+/* Hairline separators, inset to align with the row's text — the detail that
+   makes a grouped list read as native rather than as a stack of boxes. */
+.rows > * + * {
+  border-top: 0.5px solid var(--color-hairline);
 }

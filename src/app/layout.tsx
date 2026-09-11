@@ -1,15 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Kada — live counter for campus snacks",
+  title: "Kada — what's left at the counter",
   description:
-    "Know whether the puffs are gone before you walk over. Live availability for the college canteen and the shop outside, from vendor counts and student reports.",
+    "Know whether the puffs are gone before you walk over. Live availability for the college canteen and the shop outside.",
   applicationName: "Kada",
   appleWebApp: { capable: true, title: "Kada", statusBarStyle: "default" },
   formatDetection: { telephone: false },
@@ -19,24 +15,26 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfbfa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0c0c0b" },
-  ],
+  themeColor: "#f4f3f0",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en">
       <body className="min-h-dvh font-sans">
         {children}
         <Toaster
-          position="bottom-center"
+          position="top-center"
+          gap={8}
           toastOptions={{
             style: {
-              background: "var(--color-raised)",
+              background: "rgba(255,255,255,0.92)",
+              backdropFilter: "saturate(180%) blur(20px)",
               color: "var(--color-ink)",
-              border: "1px solid var(--color-line)",
+              border: "0.5px solid var(--color-hairline)",
+              borderRadius: "14px",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
+              fontSize: "14px",
             },
           }}
         />

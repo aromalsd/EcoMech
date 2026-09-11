@@ -1,6 +1,6 @@
 /** Single source of truth for the scoring model. Mirrored in SQL — keep both in step. */
 
-export const W_VENDOR = 1.0;
+export const W_VENDOR = 4.0;
 export const W_STUDENT = 0.35;
 export const GEO_BOOST = 1.4;
 export const GEO_RADIUS_M = 80;
