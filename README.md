@@ -56,8 +56,8 @@ For Software:
 
 # Installation
 ```bash
-git clone https://github.com/aromalsd/EcoMech.git
-cd EcoMech
+git clone https://github.com/aromalsd/Puffs-undo.git
+cd Puffs-undo
 npm install
 cp .env.local.example .env.local   # then fill in your Supabase values
 npm run migrate                    # creates the schema and seeds both outlets
