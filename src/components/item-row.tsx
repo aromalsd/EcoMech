@@ -2,12 +2,19 @@
 
 import { motion } from "motion/react";
 import { decayVerdict, displayState } from "@/lib/scoring";
-import { istClock, relativeTime, rupees } from "@/lib/format";
+import { istClock, minuteOfDayToClock, relativeTime, rupees } from "@/lib/format";
 import { StateMark, stateColor, stateWash } from "./state-mark";
 import type { BoardItem, Signal } from "@/lib/types";
 
+export interface Rhythm {
+  days: number;
+  minute: number;
+}
+
 interface Props {
   item: BoardItem;
+  /** Learned sell-out time, shown only once there is enough history. */
+  rhythm?: Rhythm | null;
   /** Null before mount, so server and client agree on the first paint. */
   now: Date | null;
   pending: Signal | null;
@@ -26,7 +33,7 @@ const SIGNAL_STATE = {
   sold_out: "sold_out",
 } as const;
 
-export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
+export function ItemRow({ item, rhythm, now: liveNow, pending, onReport }: Props) {
   const raw = item.state;
 
   // Anchoring to the row's own timestamp makes the pre-mount render a pure
@@ -64,6 +71,16 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
   const sellout = state === "available" && count ? istClock(raw?.est_sellout_at ?? null) : null;
   const confidencePct = Math.round(verdict.confidence * 100);
 
+  // Prefer the live prediction from the current count; fall back to the
+  // long-run pattern, which is what people actually plan around.
+  const usualClock = minuteOfDayToClock(rhythm?.minute);
+  const hint =
+    sellout != null
+      ? `likely gone by ${sellout}`
+      : usualClock && state !== "sold_out"
+        ? `usually gone by ${usualClock}`
+        : null;
+
   return (
     <li className="glass overflow-hidden rounded-[22px]">
       <div className="flex items-start justify-between gap-4 px-[18px] pt-[15px]">
@@ -73,7 +90,7 @@ export function ItemRow({ item, now: liveNow, pending, onReport }: Props) {
             {price ? <span className="tnum">{price}</span> : null}
             {price ? " · " : null}
             {raw?.last_signal_at ? relativeTime(raw.last_signal_at, now) : "not reported yet"}
-            {sellout ? ` · likely gone by ${sellout}` : null}
+            {hint ? ` · ${hint}` : null}
           </p>
         </div>
 

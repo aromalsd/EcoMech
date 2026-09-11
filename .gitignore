@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env.local
+
+# Private operator dashboard — deliberately never committed or deployed.
+/src/app/admin/

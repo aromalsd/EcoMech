@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/device";
 import { distanceMetres } from "@/lib/scoring";
 import { GEO_RADIUS_M } from "@/lib/scoring/constants";
-import { ItemRow } from "./item-row";
+import { ItemRow, type Rhythm } from "./item-row";
 import { logEvent } from "@/lib/telemetry";
 import { Standing } from "./standing";
 import type { Item, ItemState, Shop, Signal, SubmitResult } from "@/lib/types";
@@ -34,6 +34,7 @@ export function Board({ shops, items, initialStates }: Props) {
   // than silently going stale.
   const [mode, setMode] = useState<"connecting" | "live" | "polling">("connecting");
   const [reportCount, setReportCount] = useState(0);
+  const [rhythms, setRhythms] = useState<Record<string, Rhythm>>({});
 
   const activeShop = shops.find((s) => s.slug === activeSlug) ?? shops[0];
   const activeShopId = activeShop?.id ?? null;
@@ -124,6 +125,25 @@ export function Board({ shops, items, initialStates }: Props) {
     // subscription to every state change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId, activeShopId]);
+
+  useEffect(() => {
+    if (!activeShopId) return;
+    let cancelled = false;
+    void supabase.rpc("shop_rhythms", { p_shop: activeShopId }).then(({ data }) => {
+      if (cancelled || !Array.isArray(data)) return;
+      setRhythms(
+        Object.fromEntries(
+          (data as Array<{ item_id: string; days: number; minute: number }>).map((r) => [
+            r.item_id,
+            { days: r.days, minute: r.minute },
+          ]),
+        ),
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeShopId]);
 
   // Location is a weighting hint, never a gate: a refused prompt must not
   // prevent anyone from reporting.
@@ -259,6 +279,7 @@ export function Board({ shops, items, initialStates }: Props) {
             <ItemRow
               key={item.id}
               item={{ ...item, state: states[item.id] ?? null }}
+              rhythm={rhythms[item.id] ?? null}
               now={now}
               pending={pending[item.id] ?? null}
               onReport={(signal) => void report(item.id, signal)}
@@ -274,8 +295,14 @@ export function Board({ shops, items, initialStates }: Props) {
           Availability is estimated from counts at the shop and reports from students, and fades as
           it ages. The confidence shown is real — when nobody knows, it says so.
         </p>
-        <p className="mt-3 text-[11px] text-(--color-ink-3)">
-          Built by <span className="font-serif text-[13px] text-(--color-ink-2)">Aromal S D</span>
+        <p className="mt-3 flex items-center gap-3 text-[11px] text-(--color-ink-3)">
+          <a href="/stats" className="font-medium text-(--color-ink-2) underline-offset-2 hover:underline">
+            How this works
+          </a>
+          <span aria-hidden>·</span>
+          <span>
+            Built by <span className="font-serif text-[13px] text-(--color-ink-2)">Aromal S D</span>
+          </span>
         </p>
       </footer>
     </main>

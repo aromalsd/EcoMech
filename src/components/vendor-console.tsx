@@ -11,6 +11,7 @@ import {
   vendorStore,
   type VendorSession,
 } from "@/lib/vendor-session";
+import { ShopInsights } from "./shop-insights";
 import type { Item, ItemState, Shop, VendorLoginResult } from "@/lib/types";
 
 interface Props {
@@ -249,7 +250,9 @@ function Counter({
         })}
       </ul>
 
-      <p className="mt-5 px-4 text-[12px] leading-[17px] text-(--color-ink-3)">
+      <ShopInsights token={token} />
+
+      <p className="mt-5 px-1 text-[12px] leading-[17px] text-(--color-ink-3)">
         Your counts are treated as the truth, and replace whatever students have reported.
       </p>
     </main>

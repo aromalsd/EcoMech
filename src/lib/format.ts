@@ -32,3 +32,14 @@ export function rupees(paise: number | null): string | null {
   if (paise == null) return null;
   return `₹${(paise / 100).toFixed(0)}`;
 }
+
+/** Minute-of-day (IST) as a clock string, e.g. 680 -> "11:20 am". */
+export function minuteOfDayToClock(minute: number | null | undefined): string | null {
+  if (minute == null || !Number.isFinite(minute)) return null;
+  const m = ((Math.round(minute) % 1440) + 1440) % 1440;
+  const hour24 = Math.floor(m / 60);
+  const mins = m % 60;
+  const suffix = hour24 < 12 ? "am" : "pm";
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return `${hour12}:${String(mins).padStart(2, "0")} ${suffix}`;
+}
