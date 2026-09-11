@@ -4,7 +4,12 @@ import type { Item, ItemState, Shop } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ shop?: string }>;
+}) {
+  const { shop: initialSlug } = await searchParams;
   const [shopsRes, itemsRes, statesRes] = await Promise.all([
     supabase.from("shops").select("*").order("sort_order"),
     supabase.from("items").select("*").order("sort_order"),
@@ -27,5 +32,5 @@ export default async function Home() {
     );
   }
 
-  return <Board shops={shops} items={items} initialStates={states} />;
+  return <Board shops={shops} items={items} initialStates={states} initialSlug={initialSlug} />;
 }

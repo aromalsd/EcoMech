@@ -14,6 +14,8 @@
 - Member 2: [Name] - [College]
 - Member 3: [Name] - [College]
 
+**Live at [puffsundo.vercel.app](https://puffsundo.vercel.app)**
+
 ### Project Description
 Kada is a live availability board for the two places on campus that sell puffs. It tells you
 whether anything is left before you walk over. Neither shop has a till, a scanner, or any
@@ -68,6 +70,14 @@ npm run test       # scoring engine unit tests
 npm run typecheck  # strict TypeScript, no emit
 ```
 
+### Routes
+| Path | What it is |
+|---|---|
+| `/` | The public board. `?shop=<slug>` opens a specific outlet. |
+| `/vendor` | The shop's counter console, behind a PIN. |
+| `/stats` | What the board is built from, and how accurate it has been. |
+| `/codes` | Printable QR codes to stick at each counter. |
+
 ### How it actually works
 
 Availability is never stored as a boolean. Every signal lands in an append-only `reports` ledger
@@ -98,6 +108,11 @@ throttled to five attempts per fifteen minutes.
 polling automatically when websockets are blocked, which many campus networks do. Because the
 scoring model is a pure function shared by client and server, confidence keeps decaying in the
 browser between updates with no database load at all.
+
+**Closing the loop.** Reports are graded, so each reporter can see what their word is currently
+worth. The shop gets the one figure it cannot observe from behind the counter — how many people
+came looking after something had already run out — which is what gives it a reason to keep
+entering counts, and the counts are what keep the whole model honest.
 
 ### Project Documentation
 For Software:

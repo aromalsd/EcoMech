@@ -16,10 +16,14 @@ interface Props {
   shops: Shop[];
   items: Item[];
   initialStates: ItemState[];
+  /** From ?shop=<slug>, so a code scanned at a counter opens that outlet. */
+  initialSlug?: string;
 }
 
-export function Board({ shops, items, initialStates }: Props) {
-  const [activeSlug, setActiveSlug] = useState(shops[0]?.slug ?? "");
+export function Board({ shops, items, initialStates, initialSlug }: Props) {
+  const [activeSlug, setActiveSlug] = useState(
+    () => shops.find((s) => s.slug === initialSlug)?.slug ?? shops[0]?.slug ?? "",
+  );
   const [states, setStates] = useState<Record<string, ItemState>>(() =>
     Object.fromEntries(initialStates.map((s) => [s.item_id, s])),
   );
