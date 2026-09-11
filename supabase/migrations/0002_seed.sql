@@ -26,15 +26,13 @@ where not exists (
   select 1 from items i where i.shop_id = s.id and i.name = m.name
 );
 
--- Every item starts life honestly: unknown, zero confidence.
+-- Every item starts unknown, at zero confidence.
 insert into item_state (item_id)
 select id from items
 on conflict (item_id) do nothing;
 
--- Vendor PINs are deliberately NOT set here. A PIN committed to the repository
--- is a PIN anyone can read, and this one guards the ability to rewrite every
--- count in the shop. Set them out of band, once, per environment:
+-- PINs are not set here; they are configured per environment instead:
 --
 --   npm run sql -- "update shops set pin_hash = crypt('<pin>', gen_salt('bf')) where slug = 'canteen'"
 --
--- Until that is done the shop simply cannot sign in, which is the safe default.
+-- Until then a shop cannot sign in, which is the safe default.

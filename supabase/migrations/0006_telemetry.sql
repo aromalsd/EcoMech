@@ -1,8 +1,7 @@
 -- Usage telemetry, and two derived reads the interface needs.
 --
--- The point of `item_missed` is to measure demand the shop never saw: somebody
--- opened the board hoping for something that had already run out. That is the
--- one number a shopkeeper cannot get any other way.
+-- `item_missed` records demand that went unmet: someone checked for an item
+-- that had already run out.
 
 create table if not exists events (
   id         bigint generated always as identity primary key,
@@ -19,7 +18,7 @@ create index if not exists events_item_time_idx on events (item_id, created_at d
 create index if not exists events_device_idx on events (device_id, created_at desc);
 
 alter table events enable row level security;
--- No policies and no grants: writes go through log_event, reads are admin-only.
+-- No policies and no grants: writes go through log_event.
 
 create or replace function log_event(
   p_kind text,
@@ -45,8 +44,7 @@ begin
   values (p_kind, p_shop, p_item, p_device, coalesce(p_meta, '{}'::jsonb), kada_ip_hash());
 end $$;
 
--- How much this device's word is currently worth. The Beta posterior is the
--- most interesting thing in the system and was previously invisible.
+-- How much this device's reports currently count for.
 create or replace function my_standing(p_device uuid)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare v_alpha numeric; v_beta numeric; v_count int; v_graded numeric;

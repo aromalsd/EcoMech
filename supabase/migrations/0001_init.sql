@@ -217,8 +217,8 @@ begin
     updated_at = excluded.updated_at;
 end $$;
 
--- When ground truth arrives, grade the students who spoke just before it and
--- move their Beta posterior. Liars asymptote toward zero influence, silently.
+-- Grade the reports made shortly before a count arrives, moving each
+-- reporter's Beta posterior toward or away from being trusted.
 create or replace function kada_grade_reports(p_item uuid, p_truth signal_kind, p_at timestamptz)
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -256,8 +256,8 @@ begin
   return encode(digest(h || 'kada-salt', 'sha256'), 'hex');
 end $$;
 
--- Students write only through here. RLS denies direct INSERT on `reports`,
--- so the client cannot forge a row, a weight, or a timestamp.
+-- The only student write path. RLS denies direct INSERT on `reports`, so a
+-- client cannot forge a row, a weight or a timestamp.
 create or replace function submit_report(
   p_item uuid, p_signal signal_kind, p_device uuid, p_geo boolean default false)
 returns jsonb language plpgsql security definer set search_path = public as $$

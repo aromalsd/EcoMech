@@ -10,12 +10,7 @@ interface StandingData {
   weight: number;
 }
 
-/**
- * Surfaces the reputation model to the person it applies to.
- *
- * The Beta posterior silently decides how much each report counts; showing it
- * back is what turns "we weight reports" from a claim into something visible.
- */
+/** Shows a reporter how much their own reports currently count for. */
 export function Standing({ deviceId, refreshKey }: { deviceId: string; refreshKey: number }) {
   const [data, setData] = useState<StandingData | null>(null);
 

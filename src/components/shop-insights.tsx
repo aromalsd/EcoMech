@@ -13,13 +13,7 @@ interface Insights {
   busiest_hour: number | null;
 }
 
-/**
- * What the shop cannot see from behind the counter.
- *
- * The demand figure is the point: people who came looking after something had
- * already run out leave no trace in the till, so this is the only place that
- * number exists.
- */
+/** Weekly summary for the shop, including demand that never reached the till. */
 export function ShopInsights({ token }: { token: string }) {
   const [data, setData] = useState<Insights | null>(null);
 

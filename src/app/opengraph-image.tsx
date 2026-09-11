@@ -15,10 +15,7 @@ const TONE: Record<AvailState, { fg: string; bg: string; label: string }> = {
   unknown: { fg: "#97928a", bg: "#efeeec", label: "No word yet" },
 };
 
-/**
- * A live preview card. Shared into a group chat, the link itself shows what is
- * left — which is the whole product, delivered without anyone opening it.
- */
+/** Social preview rendered from current availability. */
 export default async function Image() {
   const [shopsRes, itemsRes, statesRes] = await Promise.all([
     supabase.from("shops").select("*").order("sort_order").limit(1),

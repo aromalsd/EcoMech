@@ -1,8 +1,5 @@
--- Derived reads for the two audiences.
---
--- Students get the rhythm of an item ("usually gone by 11:20"). The shop gets
--- the thing it cannot observe from behind the counter: how many people came
--- looking after something had already run out.
+-- Derived reads for the two audiences: the typical sell-out time of an item,
+-- and a weekly summary for the shop including demand that went unmet.
 
 -- One call per outlet rather than one per item.
 create or replace function shop_rhythms(p_shop uuid)

@@ -20,13 +20,7 @@ async function svgFor(url: string) {
   });
 }
 
-/**
- * A printable sheet for the counters.
- *
- * A code stuck to the counter is the highest-quality signal available: the
- * person scanning it is standing in front of the thing they are reporting on,
- * so the geolocation boost applies almost by definition.
- */
+/** Printable QR codes, one per outlet plus the shop console. */
 export default async function CodesPage() {
   const { data } = await supabase.from("shops").select("*").order("sort_order");
   const shops = (data ?? []) as Shop[];

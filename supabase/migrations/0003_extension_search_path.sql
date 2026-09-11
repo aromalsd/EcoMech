@@ -1,7 +1,6 @@
--- pgcrypto lives in the `extensions` schema on Supabase, so functions that pin
--- `search_path = public` cannot see crypt() or digest(). Widen the path on the
--- two functions that need it. Without this, vendor_login always errors, and
--- submit_report errors whenever a request actually carries headers.
+-- pgcrypto lives in the `extensions` schema, so functions pinned to
+-- `search_path = public` cannot resolve crypt() or digest(). Widen the path on
+-- the two functions that use them.
 
 create or replace function kada_ip_hash()
 returns text language plpgsql stable

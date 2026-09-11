@@ -36,8 +36,7 @@ const SIGNAL_STATE = {
 export function ItemRow({ item, rhythm, now: liveNow, pending, onReport }: Props) {
   const raw = item.state;
 
-  // Anchoring to the row's own timestamp makes the pre-mount render a pure
-  // function of the data, and yields zero elapsed time (no decay applied).
+  // Before mount, anchor to the row's own timestamp: zero elapsed, no decay.
   const now = liveNow ?? new Date(raw?.updated_at ?? 0);
 
   const verdict = raw
@@ -58,8 +57,7 @@ export function ItemRow({ item, rhythm, now: liveNow, pending, onReport }: Props
     now.getTime() - new Date(raw.last_vendor_at).getTime() < 30 * 60_000;
   const count = vendorFresh ? (raw?.last_vendor_count ?? null) : null;
 
-  // Ground truth wins until somebody reports after it. Mirrors the same rule
-  // in recompute_item_state so server and client never disagree.
+  // Mirrors recompute_item_state so the server and client agree.
   const vendorIsLatest =
     raw?.last_vendor_at != null &&
     (raw.last_signal_at == null ||
@@ -71,8 +69,7 @@ export function ItemRow({ item, rhythm, now: liveNow, pending, onReport }: Props
   const sellout = state === "available" && count ? istClock(raw?.est_sellout_at ?? null) : null;
   const confidencePct = Math.round(verdict.confidence * 100);
 
-  // Prefer the live prediction from the current count; fall back to the
-  // long-run pattern, which is what people actually plan around.
+  // Prefer the live prediction; fall back to the long-run pattern.
   const usualClock = minuteOfDayToClock(rhythm?.minute);
   const hint =
     sellout != null
@@ -96,9 +93,6 @@ export function ItemRow({ item, rhythm, now: liveNow, pending, onReport }: Props
 
         <div className="flex shrink-0 flex-col items-end gap-[7px]">
           {count != null ? (
-            // Deliberately not animated on entry: the clock tick re-renders this
-            // row every few seconds, and an entrance animation restarts with it,
-            // leaving the most important number on the row faded out.
             <span
               className="tnum text-[30px] font-semibold leading-8 tracking-[-0.025em]"
               style={{ color: stateColor(state) }}
@@ -110,8 +104,6 @@ export function ItemRow({ item, rhythm, now: liveNow, pending, onReport }: Props
         </div>
       </div>
 
-      {/* Confidence stays deliberately neutral so the state dot remains the
-          only colour that carries meaning. */}
       <div className="mt-[14px] flex items-center gap-2.5 px-[18px]">
         <div
           className="h-[3px] flex-1 overflow-hidden rounded-full bg-(--color-fill)"

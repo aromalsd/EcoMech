@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 // Applies every SQL file in supabase/migrations in lexical order, exactly once.
 //
-// Two transports, because campus and corporate networks routinely block
-// outbound Postgres:
-//   1. direct — Postgres over SUPABASE_DB_URL (fast; needs 5432/6543 open)
-//   2. api    — Supabase Management API over HTTPS/443 (works behind firewalls)
-// Chosen automatically; `--api` forces HTTPS.
+// Two transports, chosen automatically (`--api` forces the second):
+//   1. Postgres over SUPABASE_DB_URL — needs port 5432 or 6543 open
+//   2. Supabase Management API over HTTPS — works where those are blocked
 //
-// The HTTPS path shells out to curl rather than using fetch: undici imposes a
-// 10s connect timeout that slow networks exceed, and curl's config-on-stdin
-// keeps the access token out of the process list.
+// The HTTPS path uses curl: it tolerates slow connects that exceed Node's
+// fetch timeout, and config-on-stdin keeps the token out of the process list.
 
 import { readFileSync, readdirSync, existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";

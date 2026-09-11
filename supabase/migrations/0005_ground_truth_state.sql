@@ -1,15 +1,12 @@
--- Two corrections to the model.
+-- Two refinements to the model.
 --
--- 1. A count from the shop is ground truth, but it was being run through the
---    consensus score and losing: "2 left" maps to the `low` signal, worth only
---    +0.2, which sits below the availability threshold and rendered as
---    "not sure" despite being an exact count. While a count is fresh and
---    nobody has reported since, the state now comes from the count itself.
+-- 1. While a count from the shop is fresh and uncontradicted, the state is
+--    taken from the count itself rather than from the consensus score, where
+--    a `low` signal is too weak to clear the availability threshold.
 --
--- 2. A vendor reading carried the same weight as roughly three students, so a
---    just-counted item showed 45% confidence. Ground truth should read as
---    confident and then decay. Weight raised from 1.0 to 4.0, matching
---    W_VENDOR in src/lib/scoring/constants.ts.
+-- 2. A shop count now carries weight 4.0 rather than 1.0, so ground truth
+--    reads as confident and then decays. Matches W_VENDOR in
+--    src/lib/scoring/constants.ts.
 
 create or replace function recompute_item_state(p_item uuid)
 returns void language plpgsql security definer set search_path = public as $$

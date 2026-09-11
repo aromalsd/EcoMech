@@ -3,11 +3,8 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * A shared ticking clock.
- *
- * Returns null during server rendering and the hydration pass, so anything
- * derived from elapsed time renders identically on both sides; the real clock
- * takes over immediately afterwards. One interval serves every subscriber.
+ * Shared ticking clock. Returns null during server rendering and hydration so
+ * time-derived values match on both sides. One interval serves all subscribers.
  */
 const listeners = new Set<() => void>();
 let current = 0;

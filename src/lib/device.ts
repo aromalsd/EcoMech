@@ -1,11 +1,8 @@
 const KEY = "kada.device";
 
 /**
- * A stable per-browser identity.
- *
- * Deliberately not an account: reporting has to cost zero friction or nobody
- * does it. The server treats this as a hint, not a claim — it is only one
- * input to rate limiting, and an IP-derived limit backstops rotation.
+ * Stable per-browser identity. Treated by the server as a hint rather than a
+ * claim: an IP-derived limit backstops rotation.
  */
 export function getDeviceId(): string {
   if (typeof window === "undefined") return "";
@@ -16,7 +13,7 @@ export function getDeviceId(): string {
     window.localStorage.setItem(KEY, fresh);
     return fresh;
   } catch {
-    // Private browsing with storage denied: fall back to a per-session id.
+    // Storage denied: fall back to a per-session id.
     return crypto.randomUUID();
   }
 }

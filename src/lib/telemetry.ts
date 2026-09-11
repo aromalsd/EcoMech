@@ -2,12 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 export type EventKind = "visit" | "shop_view" | "item_missed" | "report" | "install";
 
-/**
- * Fire-and-forget usage logging.
- *
- * Never awaited by the interface and never surfaces an error: telemetry that
- * can break the page, or slow it down, is worse than no telemetry.
- */
+/** Fire-and-forget usage logging. Never awaited, never surfaces an error. */
 export function logEvent(
   kind: EventKind,
   deviceId: string,

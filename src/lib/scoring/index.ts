@@ -81,9 +81,8 @@ export function countToSignal(count: number): Signal {
 /**
  * Collapse a ledger of signals into a single verdict.
  *
- * Pure and dependency-free so the browser can recompute it every few seconds
- * against a moving `now`, letting confidence visibly decay with no database
- * round trip. The server runs the same model in SQL on write.
+ * Pure and dependency-free so the browser can recompute it against a moving
+ * `now`. The server runs the same model in SQL on write.
  */
 export function evaluate(entries: readonly LedgerEntry[], now: Date = new Date()): Verdict {
   let score = 0;
@@ -156,12 +155,11 @@ export function decayVerdict(
 }
 
 /**
- * Resolve what the interface should actually say.
+ * Resolve the state to display.
  *
- * A count from the shop is ground truth, so while it is fresh and nobody has
- * contradicted it since, the state comes straight from the count rather than
- * from the consensus score — otherwise "2 left" collapses into "not sure",
- * because a `low` signal is deliberately weak in the scoring model.
+ * While a count from the shop is fresh and uncontradicted it is used directly,
+ * rather than via the consensus score where a `low` signal carries little
+ * weight.
  */
 export function displayState(input: {
   verdict: Verdict;

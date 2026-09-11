@@ -27,15 +27,11 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
   const [states, setStates] = useState<Record<string, ItemState>>(() =>
     Object.fromEntries(initialStates.map((s) => [s.item_id, s])),
   );
-  // Null during SSR and hydration: decay depends on the wall clock, so deriving
-  // it on the server guarantees a mismatch. The first paint renders exactly
-  // what the server stored and the clock takes over immediately after.
+  // Null during SSR and hydration; the first paint renders the stored values.
   const now = useClock();
   const [watching, setWatching] = useState(1);
   const [pending, setPending] = useState<Record<string, Signal | null>>({});
-  // Realtime is preferred but not assumed: many campus and corporate networks
-  // block websockets outright, so the board degrades to HTTPS polling rather
-  // than silently going stale.
+  // Falls back to polling where websockets are unavailable.
   const [mode, setMode] = useState<"connecting" | "live" | "polling">("connecting");
   const [reportCount, setReportCount] = useState(0);
   const [rhythms, setRhythms] = useState<Record<string, Rhythm>>({});
@@ -91,8 +87,7 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
 
   useEffect(() => {
     if (mode !== "polling") return;
-    // refreshStates only sets state after an awaited round trip, so this never
-    // re-renders synchronously; the rule cannot see across the async boundary.
+    // Sets state only after an awaited round trip, never synchronously.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshStates();
     const id = setInterval(() => void refreshStates(), 6_000);
@@ -107,7 +102,6 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
     }
   }, [deviceId]);
 
-  // Demand the shop never saw: somebody came looking and it had already gone.
   // Recorded once per item per visit so a lingering tab cannot inflate it.
   const missed = useRef<Set<string>>(new Set());
   useEffect(() => {
@@ -125,8 +119,7 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
         });
       }
     }
-    // Intentionally keyed on the shop only: this is a per-visit signal, not a
-    // subscription to every state change.
+    // Keyed on the shop only: a per-visit signal, not a live subscription.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId, activeShopId]);
 
@@ -149,8 +142,7 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
     };
   }, [activeShopId]);
 
-  // Location is a weighting hint, never a gate: a refused prompt must not
-  // prevent anyone from reporting.
+  // Location only adjusts weighting; a refused prompt must not block reporting.
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -193,7 +185,7 @@ export function Board({ shops, items, initialStates, initialSlug }: Props) {
           if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(12);
           logEvent("report", deviceId, { itemId, meta: { signal, geo } });
           setReportCount((n) => n + 1);
-          // Don't wait on the transport to reflect the user's own action.
+          // Reflect the user's own action without waiting on the transport.
           void refreshStates();
         } else if (result.reason === "rate_limited") {
           toast("Already counted", {
