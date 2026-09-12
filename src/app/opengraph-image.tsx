@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { supabase } from "@/lib/supabase";
-import { decayVerdict, displayState, countToSignal, type AvailState } from "@/lib/scoring";
+import { decayVerdict, displayState, type AvailState } from "@/lib/scoring";
 import type { Item, ItemState, Shop } from "@/lib/types";
 
 export const size = { width: 1200, height: 630 };
