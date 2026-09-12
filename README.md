@@ -134,12 +134,12 @@ For Software:
 
 ![The board](assets/board.png)
 *The board. Each item shows the shop's own count where one is fresh, the state it implies, and how
-confident the model currently is — 75% for a puff counted a minute ago, already falling.*
+confident the model currently is — and that confidence is already falling as you read it.*
 
 ![Honest uncertainty](assets/uncertainty.png)
-*One student reporting "all gone" does not flip the board. It moves to **Not sure** at 21%, because
-a single unverified voice is not evidence. Two items below it say **No word yet** rather than
-guessing — the interface is not allowed to overstate what it knows.*
+*One student reporting "all gone" does not flip the board. It moves to **Not sure** at just over
+20%, because a single unverified voice is not evidence. The items below it say **No word yet**
+rather than guessing — the interface is not allowed to overstate what it knows.*
 
 ![The counter console](assets/counter.png)
 *What the shop sees. Oversized steppers usable with one thumb in about three seconds, and beneath
